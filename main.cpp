@@ -1,4 +1,5 @@
 #include "tgaimage.h"
+#include <cmath>
 
 // white green red blue yellow
 constexpr TGAColor white = {255, 255, 255, 255}; // bgra,
@@ -7,23 +8,40 @@ constexpr TGAColor red = {0, 0, 255, 255};
 constexpr TGAColor blue = {255, 0, 0, 255};
 constexpr TGAColor yellow = {255, 255, 0, 255};
 
+void line(int ax, int ay, int bx, int by, TGAImage &buffer, TGAColor color) {
+  for (float t = 0.0f; t <= 1; t += 0.02f) {
+    // x(t) = ax + t * (bx - ax)
+    // y(t) = ay + t * (by - ay)
+
+    int x = std::round(ax + t * (bx - ax));
+    int y = std::round(ay + t * (by - ay));
+    buffer.set(x, y, color);
+  }
+}
+
 int main() {
   // width and height of canvas
   constexpr int height = 64, width = 64;
 
   // three points as x, y coords
-  constexpr int ax = 10, ay = 10;
-  constexpr int bx = 20, by = 20;
-  constexpr int cx = 30, cy = 30;
+  constexpr int ax = 7, ay = 3;
+  constexpr int bx = 12, by = 37;
+  constexpr int cx = 62, cy = 53;
 
   // add three points to frame buffer
-  TGAImage image(width, height, TGAImage::RGB);
-  image.set(ax, ay, white);
-  image.set(bx, by, blue);
-  image.set(cx, cy, green);
+  TGAImage buffer(width, height, TGAImage::RGB);
+
+  line(ax, ay, bx, by, buffer, blue);
+  line(cx, cy, bx, by, buffer, green);
+  line(cx, cy, ax, ay, buffer, yellow);
+  line(ax, ay, cx, cy, buffer, red);
+
+  buffer.set(ax, ay, white);
+  buffer.set(bx, by, white);
+  buffer.set(cx, cy, white);
 
   // write frame buffer onto the output file
-  image.write_tga_file("framebuffer.tga", false, false);
+  buffer.write_tga_file("framebuffer.tga", false, false);
 
   return 0;
 }
