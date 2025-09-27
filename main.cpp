@@ -9,12 +9,26 @@ constexpr TGAColor blue = {255, 0, 0, 255};
 constexpr TGAColor yellow = {255, 255, 0, 255};
 
 void line(int ax, int ay, int bx, int by, TGAImage &buffer, TGAColor color) {
-  for (float t = 0.0f; t <= 1; t += 0.02f) {
-    // x(t) = ax + t * (bx - ax)
-    // y(t) = ay + t * (by - ay)
+  bool steep = std::abs(bx - ax) < std::abs(by - ay);
+  if (steep) {
+    std::swap(ax, ay);
+    std::swap(bx, by);
+  }
 
-    int x = std::round(ax + t * (bx - ax));
-    int y = std::round(ay + t * (by - ay));
+  if (ax > bx) {
+    std::swap(ax, bx);
+    std::swap(ay, by);
+  }
+
+  for (int x = ax; x <= bx; ++x) {
+    float t = (x - ax) / static_cast<float>(bx - ax);
+    int y = std::round(ay + (by - ay) * t);
+
+    if (steep) {
+      buffer.set(y, x, color);
+      continue;
+    }
+
     buffer.set(x, y, color);
   }
 }
